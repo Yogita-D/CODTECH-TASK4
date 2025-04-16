@@ -1,0 +1,32 @@
+module fir_filter (
+    input clk,
+    input rst,
+    input signed [7:0] x_in,
+    output reg signed [15:0] y_out
+);
+    parameter signed [7:0] b0 = 8'd2;
+    parameter signed [7:0] b1 = 8'd3;
+    parameter signed [7:0] b2 = 8'd3;
+    parameter signed [7:0] b3 = 8'd2;
+
+    reg signed [7:0] x_reg[3:0];
+
+    integer i;
+
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            for (i = 0; i < 4; i = i + 1)
+                x_reg[i] <= 0;
+            y_out <= 0;
+        end else begin
+            // Shift inputs
+            x_reg[3] <= x_reg[2];
+            x_reg[2] <= x_reg[1];
+            x_reg[1] <= x_reg[0];
+            x_reg[0] <= x_in;
+
+            // FIR equation
+            y_out <= b0 * x_reg[0] + b1 * x_reg[1] + b2 * x_reg[2] + b3 * x_reg[3];
+        end
+    end
+endmodule
